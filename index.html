@@ -156,6 +156,11 @@
         let activeCard = null;
         let offsetX = 0;
         let offsetY = 0;
+        let sortedPairs = 0;   // Anzahl bereits sortierter Gruppen
+        const sortedStartX = 20;
+        const sortedStartY = 20;
+        const sortedGapY = 110; // Abstand zwischen den Zeilen
+        const sortedGapX = 160; // Abstand zwischen Karten einer Gruppe
         
 // Zufällige Startpositionen speichern
 let initialPositions = [];
@@ -276,13 +281,22 @@ window.addEventListener("load", () => {
                     // Gehören zur selben Gruppe?
                     if (targetCard.getAttribute('data-group') === group) {
                         // Einrasten an die Zielkarte mit leichtem Versatz
-                        const targetLeft = parseInt(targetCard.style.left);
-                        const targetTop = parseInt(targetCard.style.top);
+                        // Position der neuen richtigen Gruppe oben links berechnen
+                        const startX = sortedStartX;
+                        const startY = sortedStartY + sortedPairs * sortedGapY;
                         
-                        const offset = 120;
-
-                        movedCard.style.left = (targetLeft +15 + offset) + 'px';
-                        movedCard.style.top = targetTop +15 + 'px';
+                        // Karten nebeneinander anordnen
+                        targetCard.style.left = startX + "px";
+                        targetCard.style.top = startY + "px";
+                        
+                        movedCard.style.left = (startX + sortedGapX) + "px";
+                        movedCard.style.top = startY + "px";
+                        
+                        movedCard.classList.add('correct');
+                        targetCard.classList.add('correct');
+                        
+                        // nächste Gruppe eine Zeile tiefer
+                        sortedPairs++;
 
                         movedCard.classList.add('correct');
                         targetCard.classList.add('correct');
@@ -302,7 +316,8 @@ window.addEventListener("load", () => {
         }
 
         function resetGame() {
-    randomizeCards();
+            sortedPairs = 0;
+            randomizeCards();
 
     cards.forEach(card => {
         card.classList.remove("correct");
