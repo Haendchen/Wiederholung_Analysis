@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zuordnungs-Applet</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f4f8;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        p.instruction {
+            color: #555;
+            margin-bottom: 20px;
+        }
+
+        #game-container {
+            position: relative;
+            width: 1200px;
+            height: 800px;
+            background-color: #ffffff;
+            border: 2px solid #cbd5e1;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+        }
+
+        .card {
+            position: absolute;
+            width: 140px;
+            height: 80px;
+            background-color: #3b82f6;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 10px;
+            border-radius: 8px;
+            cursor: grab;
+            user-select: none;
+            font-weight: 600;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.2s, box-shadow 0.2s;
+            box-sizing: border-box;
+            font-size: 14px;
+            touch-action: none;
+        }
+
+        .card:active {
+            cursor: grabbing;
+        }
+
+        .card.correct {
+            background-color: #10b981 !important; /* Grün bei Erfolg */
+            cursor: default;
+        }
+
+        #feedback {
+            margin-top: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #10b981;
+            height: 30px;
+        }
+
+        #reset-btn {
+            margin-top: 10px;
+            padding: 10px 20px;
+            background-color: #64748b;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.2s;
+        }
+
+        #reset-btn:hover {
+            background-color: #475569;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Zuordnungsspiel</h1>
+    <p class="instruction">Schiebe die zusammengehörenden Kärtchen aufeinander!</p>
+
+    <div id="game-container">
+        <div class="card" id="c1" data-group="1">f(x)=5 —> x finden</div>
+        <div class="card" id="c2" data-group="1">Stelle mit dem Funktionswert 5</div>
+        <div class="card" id="c24" data-group="1">Wann ist ... 5 m hoch/weit?</div>
+
+        <div class="card" id="c3" data-group="2">f(x)=0</div>
+        <div class="card" id="c4" data-group="2">Nullstelle</div>
+
+        <div class="card" id="c5" data-group="3">f’(x)=5</div>
+        <div class="card" id="c6" data-group="3">Die Steigung der Tangente an dieser Stelle ist 5</div>
+        <div class="card" id="c7" data-group="3">momentane Änderungsrate: 5</div>
+
+        <div class="card" id="c8" data-group="4">f’(x)=0 und f''(x)<0</div>
+        <div class="card" id="c9" data-group="4">Hochpunkt</div>
+        
+        <div class="card" id="c10" data-group="5">f’(x)=0 und f''(x)>0</div>
+        <div class="card" id="c11" data-group="5">Minimum</div>
+        
+        <div class="card" id="c12" data-group="6">f''(x)=0 und f'''(x)≠0</div>
+        <div class="card" id="c13" data-group="6">Wendepunkt</div>
+        <div class="card" id="c14" data-group="6">Stelle mit der größten / kleinsten Steigung</div>
+
+        <div class="card" id="c15" data-group="7">f(x+5)</div>
+        <div class="card" id="c16" data-group="7">Funktionswert 5 Tage / Stunden / ... später</div>
+        <div class="card" id="c17" data-group="7">Verschiebung des Graphen um 5 nach links</div>
+    
+        <div class="card" id="c18" data-group="8">f(x-5)</div>
+        <div class="card" id="c19" data-group="8">Funktionswert 5 Tage / Stunden / ... vorher</div>
+        <div class="card" id="c20" data-group="8">Verschiebung des Graphen um 5 nach rechts</div>
+    
+        <div class="card" id="c21" data-group="9">f(x)+5</div>
+        <div class="card" id="c21" data-group="9">Verschiebung des Graphen um 5 nach oben</div>
+    
+        <div class="card" id="c22" data-group="10">f(x)-5</div>
+        <div class="card" id="c23" data-group="10">Verschiebung des Graphen um 5 nach unten</div>
+    
+        <div class="card" id="c25" data-group="11">f(5)</div>
+        <div class="card" id="c26" data-group="11">Funktionswert an der Stelle 5</div>
+        <div class="card" id="c27" data-group="11">Wie hoch / weit ist ... nach 5 Stunden?</div>
+    
+        <div class="card" id="c25" data-group="12"><math>
+  <mfrac>
+    <mn>f(7)-f(4)</mn>
+    <mn>7-4</mn>
+  </mfrac>
+</math> =5</div>
+        <div class="card" id="c26" data-group="12">durchschnittliche Änderungsrate: 5</div>
+    </div>
+
+    <div id="feedback"></div>
+    <button id="reset-btn" onclick="resetGame()">Spiel neu starten</button>
+
+    <script>
+        const container = document.getElementById('game-container');
+        const feedback = document.getElementById('feedback');
+        let cards = document.querySelectorAll('.card');
+
+        let activeCard = null;
+        let offsetX = 0;
+        let offsetY = 0;
+        let sortedPairs = 0;
+        let sortedGroups = {};
+
+        const sortedStartY = 20;
+        const sortedGapY = 110;
+        const sortedGapX = 160;
+
+        const leftColumnX = 20;
+        const rightColumnX = 900 - (sortedGapX * 3) - 20; 
+        const groupsPerColumn = 6;
+        
+// Zufällige Startpositionen speichern
+let initialPositions = [];
+
+function randomizeCards() {
+
+    const positions = [];
+    const minAbstand = 10;   // Abstand zwischen den Karten
+
+    cards.forEach(card => {
+
+        const cardWidth = card.offsetWidth;
+        const cardHeight = card.offsetHeight;
+
+        let left, top;
+        let frei = false;
+
+        while (!frei) {
+
+            left = Math.random() * (container.clientWidth - cardWidth);
+            top = Math.random() * (container.clientHeight - cardHeight);
+
+            frei = true;
+
+            for (const pos of positions) {
+
+                if (
+                    left < pos.left + cardWidth + minAbstand &&
+                    left + cardWidth + minAbstand > pos.left &&
+                    top < pos.top + cardHeight + minAbstand &&
+                    top + cardHeight + minAbstand > pos.top
+                ) {
+                    frei = false;
+                    break;
+                }
+            }
+        }
+
+        card.style.left = left + "px";
+        card.style.top = top + "px";
+
+        positions.push({
+            left: left,
+            top: top
+        });
+    });
+}
+
+randomizeCards();
+cards.forEach(card => {
+    card.addEventListener('mousedown', dragStart);
+});
+cards.forEach(card => {
+    card.addEventListener('pointerdown', dragStart);
+});
+
+// Beim Start zufällig verteilen
+window.addEventListener("load", () => {
+    randomizeCards();
+});
+
+        document.addEventListener('mousemove', drag);
+        document.addEventListener('mouseup', dragEnd);
+        document.addEventListener('pointermove', drag);
+        document.addEventListener('pointerup', dragEnd);
+
+        function dragStart(e) {
+            if (this.classList.contains('correct')) return; // Richtige Kärtchen sind fixiert
+            activeCard = this;
+            
+            const rect = activeCard.getBoundingClientRect();
+            const containerRect = container.getBoundingClientRect();
+            
+            offsetX = e.clientX - rect.left;
+            offsetY = e.clientY - rect.top;
+
+            activeCard.style.zIndex = 1000;
+
+        }
+
+        function drag(e) {
+            if (!activeCard) return;
+
+            const containerRect = container.getBoundingClientRect();
+            
+            let x = e.clientX - containerRect.left - offsetX;
+            let y = e.clientY - containerRect.top - offsetY;
+
+            // Im Container halten
+            x = Math.max(0, Math.min(x, container.clientWidth - activeCard.offsetWidth));
+            y = Math.max(0, Math.min(y, container.clientHeight - activeCard.offsetHeight));
+
+            activeCard.style.left = x + 'px';
+            activeCard.style.top = y + 'px';
+        }
+
+        function dragEnd() {
+            if (!activeCard) return;
+
+            checkCollisions(activeCard);
+            activeCard.style.zIndex = 1;
+            activeCard = null;
+            checkGameCompletion();
+        }
+
+        function checkCollisions(movedCard) {
+
+    const movedRect = movedCard.getBoundingClientRect();
+    const group = movedCard.getAttribute("data-group");
+
+    cards.forEach(targetCard => {
+
+        if (targetCard === movedCard) return;
+
+        const targetRect = targetCard.getBoundingClientRect();
+
+        const isOverlapping = !(
+            movedRect.right < targetRect.left ||
+            movedRect.left > targetRect.right ||
+            movedRect.bottom < targetRect.top ||
+            movedRect.top > targetRect.bottom
+        );
+
+
+        if (isOverlapping &&
+            targetCard.getAttribute("data-group") === group) {
+
+
+            // Gruppe erstmal anlegen
+            if (!sortedGroups[group]) {
+                sortedGroups[group] = [];
+            }
+
+
+            // Karten zur Gruppe hinzufügen
+            if (!sortedGroups[group].includes(targetCard)) {
+                sortedGroups[group].push(targetCard);
+            }
+
+            if (!sortedGroups[group].includes(movedCard)) {
+                sortedGroups[group].push(movedCard);
+            }
+
+
+            // Nur Karten dieser Gruppe sortieren
+            const groupCards = sortedGroups[group];
+
+
+            // Prüfen, ob diese Gruppe schon eine Position hat
+            if (!sortedGroups[group].position) {
+
+                const column = Math.floor(sortedPairs / groupsPerColumn);
+                const row = sortedPairs % groupsPerColumn;
+
+                let startX;
+
+                if (column === 0) {
+                    startX = leftColumnX;
+                } else {
+                    startX = container.clientWidth - 
+                             (groupCards.length * 150) - 160;
+                }
+
+                const startY = sortedStartY + row * sortedGapY;
+
+                sortedGroups[group].position = {
+                    x: startX,
+                    y: startY
+                };
+
+                sortedPairs++;
+            }
+
+
+            // Karten der gefundenen Teilgruppe platzieren
+            groupCards.forEach((card, index) => {
+
+                card.style.left =
+                    (sortedGroups[group].position.x +
+                     index * 150) + "px";
+
+                card.style.top =
+                    sortedGroups[group].position.y + "px";
+
+                card.classList.add("correct");
+            });
+
+
+            feedback.textContent =
+                "Super gemacht! Die Kärtchen passen zusammen!";
+
+            feedback.style.color = "#10b981";
+        }
+    });
+}
+
+
+
+        function checkGameCompletion() {
+            const allCorrect = Array.from(cards).every(card => card.classList.contains('correct'));
+            if (allCorrect) {
+                feedback.textContent = "🎉 Herzlichen Glückwunsch! Du hast alle Kärtchen richtig zugeordnet!";
+            }
+        }
+
+        function resetGame() {
+          sortedPairs = 0;
+          sortedGroups = {};
+         randomizeCards();
+
+         cards.forEach(card => {
+         card.classList.remove("correct");
+    });
+
+    feedback.textContent = "";
+}
+    </script>
+</body>
+</html>
